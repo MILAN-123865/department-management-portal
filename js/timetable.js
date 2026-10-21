@@ -23,10 +23,18 @@ let currentSelectedDay = 'all';
 let currentSubjectFilter = 'all';
 let currentTypeFilter = 'all';
 let simulatedTimeOffset = null; // null means real browser time
+let facultyScheduleOnly = false;
+let currentActiveUser = null;
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 async function initTimetablePage() {
+  currentActiveUser = await window.dataService.getCurrentUser();
+  if (currentActiveUser && currentActiveUser.isFaculty) {
+    facultyScheduleOnly = true;
+    renderFacultyScheduleBanner(currentActiveUser);
+  }
+
   // Check URL parameters for initial day (e.g., ?view=today or ?day=Monday)
   const urlParams = new URLSearchParams(window.location.search);
   const requestedView = urlParams.get('view');
@@ -49,6 +57,50 @@ async function initTimetablePage() {
 
   // Render Timetable view
   await renderTimetable();
+}
+
+function renderFacultyScheduleBanner(user) {
+  const banner = document.getElementById('facultyScheduleBanner');
+  if (!banner) return;
+
+  const pageSubtitle = document.querySelector('.page-subtitle');
+  if (pageSubtitle) {
+    pageSubtitle.innerHTML = `<strong>Instructor View:</strong> Teaching roster for <strong>${escapeHtml(user.fullName)}</strong> (${escapeHtml(user.designation)})`;
+  }
+
+  banner.innerHTML = `
+    <div class="alert alert-info border border-info-subtle d-flex flex-wrap align-items-center justify-content-between p-3 mb-3" style="border-radius: var(--radius-md); background-color: var(--surface-card);">
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary text-white"><i class="bi bi-person-workspace me-1"></i>Faculty Mode</span>
+        <div>
+          <strong class="text-dark">Faculty Teaching View:</strong>
+          <span class="text-muted small ms-1">Showing lectures &amp; labs instructed by ${escapeHtml(user.fullName)}</span>
+        </div>
+      </div>
+      <div class="mt-2 mt-md-0 d-flex gap-2">
+        <button type="button" class="btn btn-sm ${facultyScheduleOnly ? 'btn-portal-primary' : 'btn-portal-secondary'}" id="btnInstructorOnly">
+          <i class="bi bi-check2-circle me-1"></i>My Teaching Sessions (${(user.subjectsTaught || []).map(s => s.code).join(', ') || 'CS501'})
+        </button>
+        <button type="button" class="btn btn-sm ${!facultyScheduleOnly ? 'btn-portal-primary' : 'btn-portal-secondary'}" id="btnAllDeptSessions">
+          <i class="bi bi-grid-3x3-gap me-1"></i>All Department Classes
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btnInstructorOnly')?.addEventListener('click', () => {
+    facultyScheduleOnly = true;
+    renderFacultyScheduleBanner(user);
+    renderTimetable();
+    window.portalShowToast('Filter Applied', `Showing only sessions instructed by ${user.fullName}.`, 'info');
+  });
+
+  document.getElementById('btnAllDeptSessions')?.addEventListener('click', () => {
+    facultyScheduleOnly = false;
+    renderFacultyScheduleBanner(user);
+    renderTimetable();
+    window.portalShowToast('Filter Reset', 'Showing full departmental schedule.', 'info');
+  });
 }
 
 async function populateSubjectFilters() {
@@ -192,6 +244,15 @@ async function renderTimetable() {
 
   // Fetch timetable items from data service
   let entries = await window.dataService.getTimetable(currentSelectedDay, filters);
+
+  // If in faculty mode and filtering for teaching sessions only
+  if (facultyScheduleOnly && currentActiveUser && currentActiveUser.isFaculty) {
+    const taughtCodes = (currentActiveUser.subjectsTaught || []).map(s => s.code);
+    entries = entries.filter(item => 
+      (item.facultyName && item.facultyName.includes(currentActiveUser.fullName)) || 
+      taughtCodes.includes(item.subjectCode)
+    );
+  }
 
   // Re-calculate statuses if a simulated time offset is active
   if (simulatedTimeOffset) {

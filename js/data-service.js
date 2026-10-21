@@ -46,6 +46,27 @@ class DataService {
       if (customThreshold && !isNaN(parseFloat(customThreshold))) {
         this._data.config.attendanceThreshold = parseFloat(customThreshold);
       }
+      const customAnnouncements = localStorage.getItem('dmp_custom_announcements');
+      if (customAnnouncements) {
+        const parsed = JSON.parse(customAnnouncements);
+        if (Array.isArray(parsed) && parsed.length) {
+          this._data.announcements = parsed;
+        }
+      }
+      const savedStudents = localStorage.getItem('dmp_enrolled_students');
+      if (savedStudents) {
+        const parsedStudents = JSON.parse(savedStudents);
+        if (Array.isArray(parsedStudents) && parsedStudents.length) {
+          this._data.enrolledStudents = parsedStudents;
+        }
+      }
+      const savedGrievances = localStorage.getItem('dmp_attendance_grievances');
+      if (savedGrievances) {
+        const parsedGrievances = JSON.parse(savedGrievances);
+        if (Array.isArray(parsedGrievances)) {
+          this._data.attendanceGrievances = parsedGrievances;
+        }
+      }
     } catch (e) {
       console.warn('LocalStorage unavailable for demo state:', e);
     }
@@ -677,6 +698,162 @@ class DataService {
       subjects: subjectAttendance
     });
   }
+
+  async getFacultySchedule(facultyId = null) {
+    let fId = facultyId;
+    if (!fId) {
+      const user = await this.getCurrentUser();
+      fId = user.id || 'FAC-01';
+    }
+    const faculty = (this._data.faculty || []).find(f => f.id === fId) || this._data.faculty[0];
+    const taughtCodes = (faculty.subjectsTaught || []).map(s => s.code);
+    const facultyTimetable = (this._data.timetable || []).filter(t => taughtCodes.includes(t.subjectCode));
+    return this._resolve(facultyTimetable);
+  }
+
+  async getEnrolledStudents(courseCode = 'CS501') {
+    const students = (this._data.enrolledStudents || []).map(s => {
+      const att = (s.courseAttendance && s.courseAttendance[courseCode]) || {
+        attended: 30,
+        total: 36,
+        percentage: 83.33,
+        status: "Good Attendance"
+      };
+      const mrk = (s.marks && s.marks[courseCode]) || {
+        test1: 20,
+        test2: 22,
+        assignments: 16,
+        practical: 24,
+        total: 82,
+        max: 100,
+        grade: "A"
+      };
+      return {
+        ...s,
+        attendance: att,
+        marks: mrk
+      };
+    });
+    return this._resolve(students);
+  }
+
+  async recordAttendanceSession(courseCode, sessionDate, attendanceMap) {
+    // attendanceMap: { [studentId]: 'Present' | 'Absent' }
+    const students = this._data.enrolledStudents || [];
+    let presentCount = 0;
+    let totalCount = 0;
+
+    students.forEach(s => {
+      if (!s.courseAttendance) s.courseAttendance = {};
+      if (!s.courseAttendance[courseCode]) {
+        s.courseAttendance[courseCode] = { attended: 30, total: 36, percentage: 83.33, status: "Good Attendance" };
+      }
+      const isPresent = attendanceMap[s.id] === 'Present';
+      s.courseAttendance[courseCode].total += 1;
+      if (isPresent) {
+        s.courseAttendance[courseCode].attended += 1;
+        presentCount++;
+      }
+      totalCount++;
+      const newPct = Number(((s.courseAttendance[courseCode].attended / s.courseAttendance[courseCode].total) * 100).toFixed(2));
+      s.courseAttendance[courseCode].percentage = newPct;
+      s.courseAttendance[courseCode].status = newPct >= 75 ? "Good Attendance" : (newPct >= 70 ? "Needs Attention" : "Below Threshold");
+    });
+
+    try {
+      localStorage.setItem('dmp_enrolled_students', JSON.stringify(students));
+    } catch (e) {}
+
+    return this._resolve({
+      success: true,
+      courseCode,
+      sessionDate,
+      totalCount,
+      presentCount,
+      absentCount: totalCount - presentCount
+    });
+  }
+
+  async updateStudentMarks(studentId, courseCode, components) {
+    const students = this._data.enrolledStudents || [];
+    const student = students.find(s => s.id === studentId);
+    if (!student) return this._resolve({ success: false, error: 'Student not found' });
+
+    if (!student.marks) student.marks = {};
+    const test1 = Number(components.test1 || 0);
+    const test2 = Number(components.test2 || 0);
+    const assignments = Number(components.assignments || 0);
+    const practical = Number(components.practical || 0);
+    const total = test1 + test2 + assignments + practical;
+    let grade = "B";
+    if (total >= 90) grade = "A+";
+    else if (total >= 80) grade = "A";
+    else if (total >= 70) grade = "B+";
+    else if (total >= 60) grade = "B";
+    else if (total >= 50) grade = "C";
+    else grade = "F";
+
+    student.marks[courseCode] = {
+      test1,
+      test2,
+      assignments,
+      practical,
+      total,
+      max: 100,
+      grade
+    };
+
+    // If updating Aarav Patel, also reflect in overall results table
+    if (studentId === 'STU-2023-0482') {
+      const res = (this._data.results || []).find(r => r.subjectCode === courseCode);
+      if (res) {
+        res.totalObtained = total;
+        res.percentage = total;
+        res.grade = grade;
+      }
+    }
+
+    try {
+      localStorage.setItem('dmp_enrolled_students', JSON.stringify(students));
+    } catch (e) {}
+
+    return this._resolve({ success: true, updatedStudent: student });
+  }
+
+  async submitAttendanceGrievance(grievance) {
+    const ticket = {
+      id: `GRV-0${(this._data.attendanceGrievances || []).length + 1}`,
+      date: new Date().toISOString().slice(0, 10),
+      status: "Under Review",
+      ...grievance
+    };
+    if (!this._data.attendanceGrievances) this._data.attendanceGrievances = [];
+    this._data.attendanceGrievances.unshift(ticket);
+
+    try {
+      localStorage.setItem('dmp_attendance_grievances', JSON.stringify(this._data.attendanceGrievances));
+    } catch (e) {}
+
+    return this._resolve({ success: true, ticket });
+  }
+
+  async addAnnouncement(item) {
+    const newNotice = {
+      id: `ANN-0${(this._data.announcements || []).length + 1}`,
+      date: new Date().toISOString().slice(0, 10),
+      read: false,
+      ...item
+    };
+    if (!this._data.announcements) this._data.announcements = [];
+    this._data.announcements.unshift(newNotice);
+
+    try {
+      localStorage.setItem('dmp_custom_announcements', JSON.stringify(this._data.announcements));
+    } catch (e) {}
+
+    return this._resolve({ success: true, announcement: newNotice });
+  }
 }
 
 window.dataService = new DataService();
+

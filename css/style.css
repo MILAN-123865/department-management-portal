@@ -63,6 +63,49 @@
   --shadow-elevated: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
 }
 
+[data-theme="dark"] {
+  /* Brand Palette in Dark Mode */
+  --primary-navy: #09121f;
+  --primary-navy-dark: #050a12;
+  --primary-navy-light: #132238;
+  
+  --brand-blue: #3b82f6;
+  --brand-blue-hover: #60a5fa;
+  --brand-blue-light: rgba(59, 130, 246, 0.15);
+  --brand-blue-border: #1e40af;
+
+  /* Surfaces & Backgrounds */
+  --canvas-bg: #0b1322;
+  --surface-card: #131f36;
+  --surface-subtle: #192845;
+  --surface-hover: #1e3153;
+
+  /* Borders & Dividers */
+  --border-subtle: #223554;
+  --border-strong: #334e77;
+
+  /* Typography */
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --text-inverse: #0f172a;
+
+  /* Shadows */
+  --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.45);
+  --shadow-elevated: 0 12px 24px rgba(0, 0, 0, 0.55);
+
+  /* Semantic Feedback Overrides */
+  --color-success-bg: rgba(5, 150, 105, 0.18);
+  --color-success-border: rgba(5, 150, 105, 0.4);
+  --color-warning-bg: rgba(217, 119, 6, 0.18);
+  --color-warning-border: rgba(217, 119, 6, 0.4);
+  --color-danger-bg: rgba(220, 38, 38, 0.18);
+  --color-danger-border: rgba(220, 38, 38, 0.4);
+  --color-info-bg: rgba(37, 99, 235, 0.18);
+  --color-info-border: rgba(37, 99, 235, 0.4);
+}
+
 /* Base Reset & Typography */
 * {
   box-sizing: border-box;
@@ -486,3 +529,119 @@ body {
   font-size: 0.8rem;
   color: var(--text-muted);
 }
+
+/* ==========================================================================
+   Dark Mode UI Overrides
+   ========================================================================== */
+[data-theme="dark"] .app-topbar {
+  background-color: var(--surface-card);
+  border-bottom-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .app-footer {
+  background-color: var(--surface-card);
+  border-top-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .demo-banner {
+  background-color: #0d1e38;
+  border-bottom-color: #1e355b;
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .demo-banner a {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .portal-card-header,
+[data-theme="dark"] .portal-card-footer,
+[data-theme="dark"] .filter-toolbar,
+[data-theme="dark"] .portal-table-container,
+[data-theme="dark"] .portal-table tbody td {
+  background-color: var(--surface-card) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .portal-table thead th {
+  background-color: var(--surface-subtle) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .portal-table tbody tr:hover td {
+  background-color: var(--surface-hover) !important;
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: var(--surface-card);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+  border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .dropdown-menu {
+  background-color: var(--surface-card);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .dropdown-item {
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+  background-color: var(--surface-subtle);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--surface-subtle);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  background-color: var(--surface-subtle);
+  border-color: var(--brand-blue);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .bg-light {
+  background-color: var(--surface-subtle) !important;
+}
+
+[data-theme="dark"] .text-dark {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .topbar-simulation-badge {
+  background-color: var(--surface-subtle);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .notification-btn,
+[data-theme="dark"] .user-profile-trigger {
+  border-color: var(--border-subtle);
+  background-color: var(--surface-subtle);
+}
+
+[data-theme="dark"] .btn-portal-secondary {
+  background-color: var(--surface-subtle);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .btn-portal-secondary:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--brand-blue);
+  color: #ffffff;
+}
+

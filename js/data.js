@@ -200,7 +200,7 @@ window.PORTAL_DATA = {
       phone: "+1 (555) 432-1004",
       office: "Tech Block B-108",
       officeHours: "Mon & Thu: 10:00 – 12:00",
-      avatar: "/assets/images/faculty_dr_sharma.jpg", // fallback avatar
+      avatar: "/assets/images/faculty_prof_rostova.jpg",
       subjectsTaught: [
         { code: "CS504", name: "Computer Networks & Protocols" },
         { code: "CS601", name: "Network Security & Cryptography" }
@@ -219,7 +219,7 @@ window.PORTAL_DATA = {
       phone: "+1 (555) 432-1005",
       office: "Tech Block A-208",
       officeHours: "Wed & Fri: 13:00 – 15:00",
-      avatar: "/assets/images/faculty_prof_chen.jpg", // fallback avatar
+      avatar: "/assets/images/faculty_dr_nair.jpg",
       subjectsTaught: [
         { code: "CS505", name: "Software Engineering & Agile Methods" },
         { code: "CS608", name: "Product Engineering & UX" }
@@ -238,7 +238,7 @@ window.PORTAL_DATA = {
       phone: "+1 (555) 432-1006",
       office: "Tech Block B-204",
       officeHours: "Tue & Fri: 09:30 – 11:30",
-      avatar: "/assets/images/faculty_dr_patel.jpg", // fallback avatar
+      avatar: "/assets/images/faculty_prof_vance.jpg",
       subjectsTaught: [
         { code: "CS502", name: "Operating Systems & Kernel Architecture" },
         { code: "CS512", name: "Embedded Linux Programming" }
@@ -850,6 +850,140 @@ window.PORTAL_DATA = {
       summary: "The Friday afternoon CS505 Agile Sprint Review has been shifted from Seminar Room 4 to Innovation Hub Room 12.",
       body: "To accommodate group sprint presentations and projector requirements, the weekly Friday tutorial for Software Engineering (CS505) has been permanently moved to Innovation Hub Room 12.",
       read: true
+    }
+  ],
+
+  // Enrolled Students Roster (Used for Faculty Attendance & Mark Entry)
+  enrolledStudents: [
+    {
+      id: "STU-2023-0482",
+      rollNo: "48",
+      enrollmentNo: "0827CS231048",
+      fullName: "Aarav Patel",
+      avatar: "/assets/images/student_avatar.jpg",
+      courseAttendance: {
+        CS501: { attended: 32, total: 36, percentage: 88.89, status: "Good Attendance" },
+        CS502: { attended: 30, total: 34, percentage: 88.24, status: "Good Attendance" },
+        CS503: { attended: 24, total: 35, percentage: 68.57, status: "Below Threshold" },
+        CS504: { attended: 23, total: 30, percentage: 76.67, status: "Needs Attention" },
+        CS505: { attended: 26, total: 28, percentage: 92.86, status: "Good Attendance" },
+        CS506: { attended: 27, total: 32, percentage: 84.38, status: "Good Attendance" }
+      },
+      marks: {
+        CS501: { test1: 22, test2: 24, assignments: 18, practical: 27, total: 91, max: 100, grade: "A+" }
+      }
+    },
+    {
+      id: "STU-2023-0412",
+      rollNo: "12",
+      enrollmentNo: "0827CS231012",
+      fullName: "Ananya Verma",
+      avatar: "/assets/images/student_avatar.jpg",
+      courseAttendance: {
+        CS501: { attended: 34, total: 36, percentage: 94.44, status: "Good Attendance" },
+        CS506: { attended: 30, total: 32, percentage: 93.75, status: "Good Attendance" }
+      },
+      marks: {
+        CS501: { test1: 24, test2: 25, assignments: 19, practical: 28, total: 96, max: 100, grade: "A+" }
+      }
+    },
+    {
+      id: "STU-2023-0435",
+      rollNo: "35",
+      enrollmentNo: "0827CS231035",
+      fullName: "Rohan Gupta",
+      avatar: "/assets/images/student_avatar.jpg",
+      courseAttendance: {
+        CS501: { attended: 25, total: 36, percentage: 69.44, status: "Below Threshold" },
+        CS506: { attended: 24, total: 32, percentage: 75.00, status: "Needs Attention" }
+      },
+      marks: {
+        CS501: { test1: 17, test2: 19, assignments: 14, practical: 21, total: 71, max: 100, grade: "B+" }
+      }
+    },
+    {
+      id: "STU-2023-0442",
+      rollNo: "42",
+      enrollmentNo: "0827CS231042",
+      fullName: "Priya Sharma",
+      avatar: "/assets/images/student_avatar.jpg",
+      courseAttendance: {
+        CS501: { attended: 35, total: 36, percentage: 97.22, status: "Good Attendance" },
+        CS506: { attended: 31, total: 32, percentage: 96.88, status: "Good Attendance" }
+      },
+      marks: {
+        CS501: { test1: 25, test2: 24, assignments: 19, practical: 29, total: 97, max: 100, grade: "A+" }
+      }
+    },
+    {
+      id: "STU-2023-0455",
+      rollNo: "55",
+      enrollmentNo: "0827CS231055",
+      fullName: "Vikram Singh",
+      avatar: "/assets/images/student_avatar.jpg",
+      courseAttendance: {
+        CS501: { attended: 26, total: 36, percentage: 72.22, status: "Below Threshold" },
+        CS506: { attended: 25, total: 32, percentage: 78.13, status: "Needs Attention" }
+      },
+      marks: {
+        CS501: { test1: 18, test2: 20, assignments: 15, practical: 22, total: 75, max: 100, grade: "B+" }
+      }
+    },
+    {
+      id: "STU-2023-0427",
+      rollNo: "27",
+      enrollmentNo: "0827CS231027",
+      fullName: "Neha Joshi",
+      avatar: "/assets/images/student_avatar.jpg",
+      courseAttendance: {
+        CS501: { attended: 31, total: 36, percentage: 86.11, status: "Good Attendance" },
+        CS506: { attended: 28, total: 32, percentage: 87.50, status: "Good Attendance" }
+      },
+      marks: {
+        CS501: { test1: 21, test2: 23, assignments: 17, practical: 26, total: 87, max: 100, grade: "A" }
+      }
+    },
+    {
+      id: "STU-2023-0419",
+      rollNo: "19",
+      enrollmentNo: "0827CS231019",
+      fullName: "Kabir Mehta",
+      avatar: "/assets/images/student_avatar.jpg",
+      courseAttendance: {
+        CS501: { attended: 33, total: 36, percentage: 91.67, status: "Good Attendance" },
+        CS506: { attended: 29, total: 32, percentage: 90.63, status: "Good Attendance" }
+      },
+      marks: {
+        CS501: { test1: 23, test2: 22, assignments: 18, practical: 27, total: 90, max: 100, grade: "A+" }
+      }
+    },
+    {
+      id: "STU-2023-0451",
+      rollNo: "51",
+      enrollmentNo: "0827CS231051",
+      fullName: "Tanvi Desai",
+      avatar: "/assets/images/student_avatar.jpg",
+      courseAttendance: {
+        CS501: { attended: 28, total: 36, percentage: 77.78, status: "Needs Attention" },
+        CS506: { attended: 26, total: 32, percentage: 81.25, status: "Good Attendance" }
+      },
+      marks: {
+        CS501: { test1: 20, test2: 21, assignments: 16, practical: 25, total: 82, max: 100, grade: "A" }
+      }
+    }
+  ],
+
+  // Student Attendance Clarification & Grievance Tickets
+  attendanceGrievances: [
+    {
+      id: "GRV-01",
+      date: "2026-10-17",
+      subjectCode: "CS503",
+      subjectName: "Design & Analysis of Algorithms",
+      sessionDate: "2026-10-13",
+      reason: "Participated in University Inter-College Hackathon delegation representing CSE department.",
+      status: "Approved",
+      reviewedBy: "Dr. Rajesh Patel"
     }
   ]
 };

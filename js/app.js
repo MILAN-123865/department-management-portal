@@ -79,11 +79,13 @@
 
   // Initialize App Shell when DOM ready
   document.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
     initSidebar();
     initNotifications();
     initProfileDropdown();
     initSimulatedTimeBadge();
     initSettingsModal();
+    initFacultyHeaderActions();
   });
 
   /**
@@ -603,4 +605,162 @@
       <span class="tabular-nums">${timeStr}</span>
     `;
   }
+
+  /**
+   * Dark / Light Theme System
+   */
+  function initTheme() {
+    const savedTheme = localStorage.getItem('dmp_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    const topbarRight = document.querySelector('.topbar-right');
+    if (!topbarRight) return;
+
+    if (!document.getElementById('themeToggleBtn')) {
+      const themeBtn = document.createElement('button');
+      themeBtn.type = 'button';
+      themeBtn.id = 'themeToggleBtn';
+      themeBtn.className = 'btn btn-portal-secondary btn-portal-sm px-2 py-1';
+      themeBtn.title = savedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+      themeBtn.setAttribute('aria-label', themeBtn.title);
+      themeBtn.innerHTML = savedTheme === 'dark' 
+        ? '<i class="bi bi-sun-fill text-warning"></i>' 
+        : '<i class="bi bi-moon-stars-fill text-primary"></i>';
+
+      themeBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('dmp_theme', newTheme);
+        themeBtn.title = newTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        themeBtn.innerHTML = newTheme === 'dark' 
+          ? '<i class="bi bi-sun-fill text-warning"></i>' 
+          : '<i class="bi bi-moon-stars-fill text-primary"></i>';
+        window.portalShowToast('Theme Changed', `Switched to ${newTheme === 'dark' ? 'Dark' : 'Light'} Mode.`, 'info');
+      });
+
+      const notifDropdown = topbarRight.querySelector('.dropdown');
+      if (notifDropdown) {
+        topbarRight.insertBefore(themeBtn, notifDropdown);
+      } else {
+        topbarRight.appendChild(themeBtn);
+      }
+    }
+  }
+
+  /**
+   * Faculty Header Shortcuts (Post Announcement, Switch to Student)
+   */
+  async function initFacultyHeaderActions() {
+    try {
+      const isFac = await window.dataService.isFaculty();
+      if (!isFac) return;
+
+      const topbarRight = document.querySelector('.topbar-right');
+      if (!topbarRight) return;
+
+      if (!document.getElementById('facultyPostNoticeBtn')) {
+        const postBtn = document.createElement('button');
+        postBtn.type = 'button';
+        postBtn.id = 'facultyPostNoticeBtn';
+        postBtn.className = 'btn btn-portal-primary btn-portal-sm d-none d-md-inline-flex';
+        postBtn.style.fontSize = '0.78rem';
+        postBtn.innerHTML = '<i class="bi bi-megaphone-fill me-1"></i><span>Post Notice</span>';
+        postBtn.addEventListener('click', () => window.openCreateAnnouncementModal());
+
+        const themeBtn = document.getElementById('themeToggleBtn');
+        if (themeBtn) {
+          topbarRight.insertBefore(postBtn, themeBtn);
+        } else {
+          topbarRight.prepend(postBtn);
+        }
+      }
+    } catch (e) {
+      console.warn('Faculty header init:', e);
+    }
+  }
+
+  /**
+   * Modal to Post Announcement
+   */
+  window.openCreateAnnouncementModal = function () {
+    let modalEl = document.getElementById('createAnnouncementModal');
+    if (!modalEl) {
+      modalEl = document.createElement('div');
+      modalEl.id = 'createAnnouncementModal';
+      modalEl.className = 'modal fade';
+      modalEl.tabIndex = -1;
+      modalEl.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title fs-6 fw-bold"><i class="bi bi-megaphone-fill text-primary me-2"></i>Post Department Announcement</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createAnnouncementForm">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Title</label>
+                  <input type="text" class="form-control" id="annTitle" placeholder="e.g. Schedule Revision for CS501" required>
+                </div>
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label class="form-label small fw-semibold">Category</label>
+                    <select class="form-select" id="annCategory">
+                      <option value="Academic">Academic</option>
+                      <option value="Examinations">Examinations</option>
+                      <option value="Timetable">Timetable</option>
+                      <option value="Seminars">Seminars</option>
+                      <option value="Events">Events</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small fw-semibold">Priority</label>
+                    <select class="form-select" id="annPriority">
+                      <option value="Normal">Normal</option>
+                      <option value="High">High</option>
+                      <option value="Urgent">Urgent</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Short Summary</label>
+                  <input type="text" class="form-control" id="annSummary" placeholder="1-2 sentences overview" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Detailed Body</label>
+                  <textarea class="form-control" id="annBody" rows="3" placeholder="Full notice details..." required></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-portal-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-portal-primary btn-sm"><i class="bi bi-send me-1"></i>Publish Notice</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modalEl);
+
+      modalEl.querySelector('#createAnnouncementForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('annTitle').value.trim();
+        const category = document.getElementById('annCategory').value;
+        const priority = document.getElementById('annPriority').value;
+        const summary = document.getElementById('annSummary').value.trim();
+        const body = document.getElementById('annBody').value.trim();
+
+        await window.dataService.addAnnouncement({ title, category, priority, summary, body });
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+        window.portalShowToast('Announcement Published', 'Notice has been broadcast to all students & faculty.', 'success');
+        setTimeout(() => window.location.reload(), 600);
+      });
+    }
+
+    const bsModal = new bootstrap.Modal(modalEl);
+    bsModal.show();
+  };
 })();
+
